@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+
+@theme {
+  --font-display: "cursive", cursive;
+  --font-header: "Pacifico", cursive;
+}
