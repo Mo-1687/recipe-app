@@ -1,10 +1,12 @@
 import axios from "axios";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Category from "../Category/Category";
 import Card from "../Card/Card";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useOutletContext } from "react-router-dom";
 
 const Home = () => {
+  const { input } = useOutletContext();
   const [category, setCategory] = useState(" ");
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -12,50 +14,61 @@ const Home = () => {
   // call API
   async function getMeals() {
     try {
-      if (category === " ") {
+      if (input && input.trim() !== "") {
         setLoading(true);
+        setCategory("");
         const response = await axios.get(
-          `https://themealdb.com/api/json/v1/1/search.php?s= `
+          `https://themealdb.com/api/json/v1/1/search.php?s=${input}`
         );
-        setMeals(response.data.meals);
+        setMeals(response.data.meals || []);
         setLoading(false);
-        return;
+      } else {
+        // Reset category to default when input is empty
+        if (category === "") {
+          setCategory(" ");
+        }
+
+        if (category === " ") {
+          setLoading(true);
+          const response = await axios.get(
+            `https://themealdb.com/api/json/v1/1/search.php?s= `
+          );
+          setMeals(response.data.meals || []);
+          console.log(response.data.meals);
+          setLoading(false);
+        } else {
+          setLoading(true);
+          const response = await axios.get(
+            `https://themealdb.com/api/json/v1/1/filter.php?c=${category}`
+          );
+          setMeals(response.data.meals || []);
+          setLoading(false);
+        }
       }
-      setLoading(true);
-      const response = await axios.get(
-        `https://themealdb.com/api/json/v1/1/filter.php?c=${category}`
-      );
-      setMeals(response.data.meals);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching meals:", error);
+      setMeals([]); // Reset meals on error
+      setLoading(false);
     }
   }
 
   useEffect(() => {
     getMeals();
-  }, [category]);
+  }, [input, category]);
 
-  // render Meals
-
-  const mealsList = meals.map((meal) => {
-    return <Card key={meal.idMeal} meal={meal} />;
-  });
   return (
     <>
       {loading ? (
-        <AiOutlineLoading3Quarters className="animate-spin fixed   top-1/2 left-1/3 md:left-1/2 w-40 h-40 text-amber-600" />
+        <AiOutlineLoading3Quarters className="animate-spin fixed top-1/2 left-1/3 md:left-1/2 w-40 h-40 text-amber-600" />
       ) : (
         <>
-          <h1 className="font-header bg-gradient-to-r p-2 from-[#F29724] via-[#ca1023c4] to-[#c90519] bg-clip-text text-transparent text-4xl font-bold">
-            Learn, Cook, Eat Your Food
-          </h1>
-
-          <Category category={category} setCategory={setCategory} />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 gap-y-10 mt-12">
-            {mealsList}
-          </div>
+          <Category
+            category={category}
+            setCategory={setCategory}
+            searchType={"c=list"}
+            isHome={true}
+          />
+          <Card meals={meals} />
         </>
       )}
     </>

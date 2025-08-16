@@ -1,10 +1,8 @@
-import { useState } from "react";
 import Logo from "../../assets/logo-BfNap0Pe.png";
 import { GiMeal } from "react-icons/gi";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 const Sidebar = ({ isOpen, setIsOpen }) => {
-  const [active, setActive] = useState("meal");
-  const lists = ["meal", "ingredients", "area"];
+  const lists = ["meal", "area"];
   return (
     <>
       <button
@@ -17,13 +15,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             setIsOpen(!isOpen);
           }
         }}
-        className="inline-flex fixed -top-2 -left-2.5 bg-white z-40 items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+        className="inline-flex fixed -top-2 -left-2.5 z-40 items-center p-2 mt-2 ms-3 text-sm rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
       >
         <span className="sr-only">Open sidebar</span>
         <svg
-          className="w-6 h-6"
+          className="w-7 h-7"
           aria-hidden="true"
-          fill="currentColor"
+          fill=" text-black"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -46,19 +44,20 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
           {lists.map((list, index) => {
             return (
-              <Link
+              <NavLink
                 key={index}
-                to={`/`}
-                className={`flex items-center font-display capitalize font-medium text-xl   mb-4 gap-3 px-6 py-2 rounded-3xl shadow border-gray-300 hover:scale-105 duration-300 hover:shadow-lg ${
-                  active === list
-                    ? "bg-orange-400 text-white font-semibold shadow-amber-600 border-orange-400 scale-105"
-                    : "bg-white text-black"
-                }`}
-                onClick={() => setActive(list)}
+                to={`/${list === "meal" ? "" : list}`}
+                className={({ isActive }) =>
+                  `flex items-center font-display capitalize font-medium text-xl mb-4 gap-3 px-6 py-2 rounded-3xl shadow border-gray-300 hover:scale-105 duration-300 hover:shadow-lg ${
+                    isActive
+                      ? "bg-orange-400 text-white font-semibold shadow-lg shadow-amber-600 border-orange-400 scale-105"
+                      : "bg-white text-black"
+                  }`
+                }
               >
                 <GiMeal />
                 {list}
-              </Link>
+              </NavLink>
             );
           })}
         </div>

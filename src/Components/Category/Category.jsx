@@ -1,14 +1,14 @@
 import axios from "axios";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-const Category = ({ setCategory, category }) => {
+const Category = ({ setCategory, category, searchType, isHome }) => {
   const [list, setList] = useState([]);
 
   // Call API
   async function getCategories() {
     try {
       const response = await axios.get(
-        "https://themealdb.com/api/json/v1/1/list.php?c=list"
+        `https://themealdb.com/api/json/v1/1/list.php?${searchType}`
       );
       setList(response.data.meals);
     } catch (error) {
@@ -24,28 +24,36 @@ const Category = ({ setCategory, category }) => {
     <li
       key={index}
       className={`capitalize cursor-pointer text-gray-500 border border-gray-300 font-semibold rounded-full px-4 py-2 me-2 shadow hover:shadow-lg font-display duration-500 ${
-        category === item.strCategory
+        category === item.strCategory || category === item.strArea
           ? "bg-black text-white hover:bg-black hover:text-white"
           : " hover:bg-white "
       }`}
-      onClick={() => setCategory(item.strCategory)}
+      onClick={() =>
+        setCategory(item.strCategory ? item.strCategory : item.strArea)
+      }
     >
-      {item.strCategory}
+      {item.strCategory
+        ? item.strCategory
+        : item.strArea === "Unknown"
+        ? "Kazakhstan"
+        : item.strArea}
     </li>
   ));
   return (
     <>
       <ul className="hidden sm:flex flex-wrap gap-4 mt-8 font-display">
-        <li
-          className={`capitalize cursor-pointer text-gray-500 border border-gray-300 rounded-full px-4 py-2 me-2 font-semibold shadow hover:shadow-lg font-display duration-500 ${
-            category === " "
-              ? "bg-black text-white hover:bg-black hover:text-white"
-              : " hover:bg-white "
-          }`}
-          onClick={() => setCategory(" ")}
-        >
-          All
-        </li>
+        {isHome && (
+          <li
+            className={`capitalize cursor-pointer text-gray-500 border border-gray-300 rounded-full px-4 py-2 me-2 font-semibold shadow hover:shadow-lg font-display duration-500 ${
+              category === " "
+                ? "bg-black text-white hover:bg-black hover:text-white"
+                : " hover:bg-white "
+            }`}
+            onClick={() => setCategory(" ")}
+          >
+            All
+          </li>
+        )}
         {categoryList}
       </ul>
 
@@ -56,11 +64,13 @@ const Category = ({ setCategory, category }) => {
         value={category}
         onChange={(e) => setCategory(e.target.value)}
       >
-        <option value="">Select a category</option>
-        <option value=" ">All</option>
+        {isHome && <option value=" ">All</option>}
         {list.map((item, index) => (
-          <option key={index} value={item.strCategory}>
-            {item.strCategory}
+          <option
+            key={index}
+            value={item.strCategory ? item.strCategory : item.strArea}
+          >
+            {item.strCategory ? item.strCategory : item.strArea}
           </option>
         ))}
       </select>
